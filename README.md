@@ -200,13 +200,21 @@ python run_pipeline.py
 
 ---
 
+## 👥 Authors & Contributors
+
+- **Mriganka Naskar** ([@MrigankaNaskar](https://github.com/MrigankaNaskar))
+- **Avik Ghosh** ([@avikengineer007](https://github.com/avikengineer007))
+
+---
+
 ## 📜 License & Citation
 
 This project is licensed under the **MIT License**.
 
+If you use Ardhanarishvara in your research or applications, please cite:
 ```bibtex
 @software{ardhanarishvara2026,
-  author = {Mriganka Naskar},
+  author = {Mriganka Naskar and Avik Ghosh},
   title = {Ardhanarishvara: One being, two signals — a unified view into neurodevelopment},
   year = {2026},
   url = {https://github.com/MrigankaNaskar/Ardhanarishvara-One-being-two-signals_a-unified-view-into-neurodevelopment}
