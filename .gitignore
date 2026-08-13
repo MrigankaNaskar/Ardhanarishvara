@@ -34,3 +34,6 @@ __pycache__/
 Thumbs.db
 logs/
 *.log
+
+# IDE workspace-local settings (machine-specific interpreter paths)
+.vscode/
