@@ -1,0 +1,36 @@
+# Environment and secrets
+.env
+*.env
+*.key
+*.pem
+*.secret
+
+# Data and caches
+data/raw/
+data/fmri/
+data/eeg/
+data/processed/
+data/cache/
+*.nii
+*.nii.gz
+*.edf
+*.bdf
+*.fif
+*.npy
+*.h5
+*.hdf5
+
+# Python & PyTorch
+__pycache__/
+*.py[cod]
+*$py.class
+*.pt
+*.pth
+*.onnx
+.pytest_cache/
+
+# System and logs
+.DS_Store
+Thumbs.db
+logs/
+*.log

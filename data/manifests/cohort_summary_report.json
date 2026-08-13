@@ -1,0 +1,28 @@
+{
+  "abide_fMRI_cohort": {
+    "total_subjects": 100,
+    "class_balance": {
+      "ASD_count": 51,
+      "ASD_pct": 51.0,
+      "TD_count": 49,
+      "TD_pct": 49.0
+    },
+    "age_mean": 22.93
+  },
+  "EEG_cohort": {
+    "dataset_name": "OpenNeuro_ds003774_ASD_EEG",
+    "total_subjects": 80,
+    "class_balance": {
+      "ASD_count": 39,
+      "ASD_pct": 48.75,
+      "TD_count": 41,
+      "TD_pct": 51.25
+    },
+    "age_mean": 11.93
+  },
+  "cohort_overlap_analysis": {
+    "overlapping_subjects_count": 0,
+    "overlap_status": "ZERO_OVERLAP_UNALIGNED_MULTIMODAL",
+    "details": "fMRI (ABIDE-I) and EEG cohorts are unaligned separate populations requiring late/embedding fusion."
+  }
+}
