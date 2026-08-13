@@ -34,6 +34,14 @@ FREQ_BANDS = {
 }
 
 
+# Standard 16-Channel 10-20 Extended Montage used in KAU ASD EEG Cohort
+KAU_CHANNELS_10_20 = [
+    "FP1", "F3", "F7", "FP2", "F4", "F8",
+    "T7", "P7", "T8", "P8",
+    "C3", "Cz", "C4", "P3", "Pz", "P4"
+]
+
+
 @sanitize_errors("Failed to create sample EEG recording.")
 def generate_sample_eeg_raw(n_channels: int = 16, sfreq: float = 256.0, duration_sec: float = 10.0) -> mne.io.Raw:
     """Generate a clean synthetic MNE Raw EEG object for isolated testing and baseline pipeline demonstration.
@@ -43,11 +51,6 @@ def generate_sample_eeg_raw(n_channels: int = 16, sfreq: float = 256.0, duration
       - sfreq=256.0 Hz
     Real .edf files require a data-sharing request to King Abdulaziz University.
     """
-    KAU_CHANNELS_10_20 = [
-        "FP1", "F3", "F7", "FP2", "F4", "F8",
-        "T7", "P7", "T8", "P8",
-        "C3", "Cz", "C4", "P3", "Pz", "P4"
-    ]
     if n_channels == 16:
         ch_names = KAU_CHANNELS_10_20
     else:

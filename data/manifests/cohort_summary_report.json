@@ -35,7 +35,7 @@
   },
   "EEG_cohort": {
     "dataset_name": "KAU ASD EEG Dataset (Djemal et al., 2017, doi:10.3390/app7020183)",
-    "description": "Real King Abdulaziz University EEG dataset: 16 recordings (8 ASD, 8 TD children), 16 channels (standard 10-20), 256 Hz. Raw files require data-sharing request to KAU.",
+    "description": "Real King Abdulaziz University EEG dataset: 16 recordings (8 ASD, 8 TD children), 16 channels, 256 Hz. Raw files require data-sharing request to KAU.",
     "total_subjects": 16,
     "class_balance": {
       "ASD_count": 8,

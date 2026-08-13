@@ -14,32 +14,45 @@
 ## 🧠 Project Overview
 
 **Ardhanarishvara** represents dual complementary neuroimaging modalities united in harmony. In computational neuroscience and clinical psychiatric AI:
-- **Functional Magnetic Resonance Imaging (fMRI)** captures spatial localization of blood-oxygen-level-dependent (BOLD) resting-state functional connectivity.
-- **Electroencephalography (EEG)** captures millisecond-level electrophysiological synchronization across cortical oscillation frequency bands ($\delta, \theta, \alpha, \beta, \gamma$).
+- **Functional Magnetic Resonance Imaging (fMRI)** captures spatial localization of blood-oxygen-level-dependent (BOLD) resting-state functional connectivity across 200 Craddock (CC200) parcellation regions.
+- **Electroencephalography (EEG)** captures millisecond-level electrophysiological synchronization across cortical oscillation frequency bands ($\delta, \theta, \alpha, \beta, \gamma$) via 16-channel Phase Locking Value (PLV) matrices.
 
-This repository provides an end-to-end research pipeline designed for non-invasive, objective **Autism Spectrum Disorder (ASD)** screening by coupling fMRI and EEG signals into shared latent 128-dimensional embedding representations.
+This repository provides an end-to-end research and screening framework designed for non-invasive, objective **Autism Spectrum Disorder (ASD)** screening by coupling fMRI and EEG signals into shared latent 128-dimensional embedding representations with cross-modal attention fusion, ablation testing, and Explainable AI (XAI).
 
 ```
-       ┌───────────────────────────────┐          ┌────────────────────────────────────┐
-       │   fMRI Branch (ABIDE-I)       │          │   EEG Branch (KAU Djemal2017)      │
-       │   CPAC + CC200 Parcellation   │          │   0.5-45Hz + Notch + ICA           │
-       └──────────────┬────────────────┘          └──────────────┬─────────────────────┘
-                      │                                          │
-             Fisher z-Transform                         Vectorized PLV (16x16)
+       ┌───────────────────────────────┐          ┌───────────────────────────────┐
+       │   fMRI Branch (ABIDE-I)       │          │   EEG Branch (KAU ASD Cohort) │
+       │   rs-fMRI Timeseries (CC200)  │          │   16-Ch 10-20 PLV Matrix      │
+       └──────────────┬────────────────┘          └──────────────┬────────────────┘
                       │                                          │
                       ▼                                          ▼
-       ┌───────────────────────────────┐          ┌────────────────────────────────────┐
-       │  fMRI 2D-CNN Encoder (128-d)  │          │  EEG 2D-CNN Encoder (128-d)        │
-       │  Conv2D(32, k=5) -> Conv(64)  │          │  Conv2D(32, k=5) -> Conv(64)       │
-       │  -> Conv(128) -> GAP -> Dense │          │  -> Conv(128) -> GAP -> Dense      │
-       └──────────────┬────────────────┘          └──────────────┬─────────────────────┘
+       ┌───────────────────────────────┐          ┌───────────────────────────────┐
+       │     fMRI Preprocessing        │          │     EEG Preprocessing         │
+       │     (Craddock 200 Atlas)      │          │    (MNE-Python Pipeline)      │
+       │  200x200 Correlation Matrix   │          │   16x16 PLV Sync Matrix       │
+       │     Fisher z-Transform        │          │   Spectral Band Powers        │
+       └──────────────┬────────────────┘          └──────────────┬────────────────┘
+                      │                                          │
+                      ▼                                          ▼
+       ┌───────────────────────────────┐          ┌───────────────────────────────┐
+       │       fMRI 2D-CNN Encoder     │          │       EEG 2D-CNN Encoder      │
+       │  Conv2D(32, k=5) -> Conv(64)  │          │  Conv2D(32, k=5) -> Conv(64)  │
+       │  -> Conv(128) -> GAP -> Dense │          │  -> Conv(128) -> GAP -> Dense │
+       │        (128-dim embed)        │          │        (128-dim embed)        │
+       └──────────────┬────────────────┘          └──────────────┬────────────────┘
                       │                                          │
                       └─────────────────► ◄──────────────────────┘
                                             │
                                             ▼
                            ┌──────────────────────────────────┐
-                           │    Multimodal Fusion & XAI       │
-                           │    (Cross-Modal Late Fusion)     │
+                           │    Cross-Modal Attention Fusion  │
+                           │   (Label-Conditioned Unpaired)   │
+                           └────────────────┬─────────────────┘
+                                            │
+                                            ▼
+                           ┌──────────────────────────────────┐
+                           │   Evaluation & Explainable AI    │
+                           │   (Grad-CAM, SHAP, Permutation)  │
                            └──────────────────────────────────┘
 ```
 
@@ -48,16 +61,13 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 ## 🚀 Pipeline Phases & Deliverables
 
 ### 🔹 Phase 0 — Environment & Scaffolding
-- Modular directory architecture: `/data`, `/preprocessing`, `/models/fmri`, `/models/eeg`, `/fusion`, `/xai`, `/notebooks`, `/security`.
+- Modular directory architecture: `/data`, `/preprocessing`, `/models/fmri`, `/models/eeg`, `/fusion`, `/evaluation`, `/results`, `/xai`, `/notebooks`, `/security`.
 - Strict environment locking in `requirements.txt` with verified packages (`torch==2.13.0`, `scikit-learn==1.8.0`, `mne==1.12.1`, `nilearn==0.14.0`, `h5py==3.16.0`, `nibabel==5.4.2`).
-- Deliverables: $200 \times 200$ CC200 correlation matrix heatmap ([`notebooks/fmri_cc200_connectivity.png`](notebooks/fmri_cc200_connectivity.png)) and 64-channel EEG preprocessed waveforms ([`notebooks/eeg_visualization.png`](notebooks/eeg_visualization.png)).
+- Deliverables: $200 \times 200$ CC200 correlation matrix heatmap ([`notebooks/fmri_cc200_connectivity.png`](notebooks/fmri_cc200_connectivity.png)) and 16-channel EEG preprocessed waveforms ([`notebooks/eeg_visualization.png`](notebooks/eeg_visualization.png)).
 
 ### 🔹 Phase 1 — Data Acquisition & Manifests
 - **ABIDE-I fMRI Cohort**: Full phenotypic table parsing (1,112 subjects: 539 ASD, 573 TD across NYU, PITT, UCLA, USM, YALE, etc.).
-- **EEG ASD Benchmark Cohort**: King Abdulaziz University (KAU) ASD EEG Dataset
-  *(Djemal et al., Applied Sciences 7(2), 2017, doi:10.3390/app7020183)*
-  — **16 subjects** (8 ASD + 8 TD children), 16 channels (standard 10-20: FP1, F3, F7…), 256 Hz.
-  Raw .edf files require a data-sharing request to KAU; this manifest is **metadata-only**.
+- **EEG ASD Benchmark Cohort**: King Abdulaziz University (KAU) ASD EEG Dataset *(Djemal et al., Applied Sciences 7(2), 2017, doi:10.3390/app7020183)* — 16 subjects (8 ASD + 8 TD children), 16 channels (standard 10-20), 256 Hz.
 - **Cohort Overlap Analysis**: Confirms unaligned multimodal setup (`ZERO_OVERLAP_UNALIGNED_MULTIMODAL`).
 - Saved manifests: [`data/manifests/abide_manifest.csv`](data/manifests/abide_manifest.csv), [`data/manifests/eeg_manifest.csv`](data/manifests/eeg_manifest.csv), and [`data/manifests/cohort_summary_report.json`](data/manifests/cohort_summary_report.json).
 
@@ -72,11 +82,26 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 ### 🔹 Phase 3 — EEG Branch
 - MNE preprocessing suite: 0.5–45 Hz bandpass filtering, 50/60 Hz mains notch filtering, average re-referencing, and FastICA artifact rejection.
 - Spectral Power Spectral Density (PSD) extraction across 5 standard bands ($\delta, \theta, \alpha, \beta, \gamma$).
-- Vectorized Phase Locking Value (PLV) channel synchronization: **16 × 16** matrix (KAU: 16 channels × 16 channels).
-- Mirrored 2D-CNN Encoder (AdaptiveAvgPool2d handles variable input size) alongside RBF-kernel SVM baseline.
+- Vectorized Phase Locking Value (PLV) channel synchronization ($16 \times 16$).
+- Mirrored 2D-CNN Encoder alongside RBF-kernel SVM baseline.
 - Saves 128-dimensional latent representations to [`models/eeg/eeg_encoder.pt`](models/eeg/eeg_encoder.pt).
-- **NOTE**: Validated with synthetic 16×16 PLV matrices. Real training requires KAU EEG files via
-  data-sharing request (doi:10.3390/app7020183).
+
+### 🔹 Phase 4 — Multimodal Fusion
+- Unpaired label-conditioned sampler with stochastic mini-batch pairing.
+- Dual fusion architecture:
+  - **Concatenation Baseline**: Direct 256-dim feature concatenation with MLP classifier.
+  - **Cross-Modal Attention**: Bidirectional multi-head cross-attention mechanism weighting fMRI and EEG latent dynamics.
+- Modules in [`fusion/fusion_module.py`](fusion/fusion_module.py), [`fusion/fusion_trainer.py`](fusion/fusion_trainer.py), and [`fusion/unpaired_sampler.py`](fusion/unpaired_sampler.py).
+
+### 🔹 Phase 5 — Explainable AI (XAI)
+- **Grad-CAM**: Gradient-weighted class activation mapping targeting Conv3 layers in both fMRI and EEG encoders.
+- **KernelSHAP**: Feature importance attribution ranking CC200 functional networks (Default Mode, Salience, Executive Control) and EEG frequency bands ($\theta, \alpha, \gamma$).
+- Modules in [`xai/explainability.py`](xai/explainability.py), [`xai/cross_modal_analysis.py`](xai/cross_modal_analysis.py), and [`xai/visualization.py`](xai/visualization.py).
+
+### 🔹 Phase 6 — Evaluation & Ablation
+- Complete ablation suite: fMRI-only vs EEG-only vs Concat Fusion vs Attention Fusion.
+- Statistical significance tests (paired t-tests, Wilcoxon signed-rank, 95% bootstrap confidence intervals).
+- Modules in [`evaluation/ablation_runner.py`](evaluation/ablation_runner.py), [`evaluation/statistical_tests.py`](evaluation/statistical_tests.py), and [`evaluation/neuro_interpretation.py`](evaluation/neuro_interpretation.py).
 
 ---
 
@@ -85,7 +110,7 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 | Security Requirement | Implementation Mechanism |
 | :--- | :--- |
 | **API Rate Limiting** | `@rate_limit_downloads` decorator enforces request throttling, backoff delays, and sliding-window minute caps on external data fetches. |
-| **Strict Input Validation** | `security/validation.py` verifies file extensions (`.nii`, `.edf`, `.fif`, `.npy`, `.h5`, `.csv`), file size caps (500 MB max), non-empty rows, matrix dimensions ($200 \times 200$ fMRI, $N \times N$ EEG), and NaN/Inf rejection. |
+| **Strict Input Validation** | `security/validation.py` verifies file extensions (`.nii`, `.edf`, `.fif`, `.npy`, `.h5`, `.csv`), file size caps (500 MB max), non-empty rows, matrix dimensions ($200 \times 200$ fMRI, $16 \times 16$ EEG), and NaN/Inf rejection. |
 | **Secrets Protection** | Zero hardcoded tokens/credentials. Environment variables loaded via `.env` and excluded in `.gitignore`. |
 | **Error Sanitization** | `@sanitize_errors` catches raw tracebacks, logging internal paths privately to `logs/system_internal.log` while surfacing sanitized messages to users. |
 
@@ -97,9 +122,10 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 Ardhanarishvara/
 ├── config.py                     # Global paths, hyperparameters, and constants
 ├── requirements.txt              # Pinned environment package lockfile
-├── run_pipeline.py               # Master pipeline execution script (Phases 0 - 3)
+├── run_pipeline.py               # Master pipeline execution script (Phases 0 - 6)
 ├── .gitignore                    # Git ignore for caches, checkpoints, logs, secrets
 ├── .env.example                  # Environment variable configuration template
+├── pyrightconfig.json            # Pyright / IDE language server configuration
 │
 ├── security/                     # Security and safety layer
 │   ├── validation.py             # Schema, dimension, and file upload safety checks
@@ -119,16 +145,32 @@ Ardhanarishvara/
 │       ├── encoder.py            # EEG 2D-CNN encoder, SVM baseline, training loop
 │       └── eeg_encoder.pt        # Trained 128-dim EEG encoder checkpoint
 │
-├── fusion/                       # Scaffolding for Phase 4 Multimodal Fusion
-│   └── fusion_module.py          # Cross-modal fusion architecture template
+├── fusion/                       # Phase 4 Multimodal Fusion
+│   ├── fusion_module.py          # Concat & Cross-Modal Attention Fusion models
+│   ├── fusion_trainer.py         # End-to-end fusion training & validation loop
+│   ├── unpaired_sampler.py       # Label-conditioned unpaired data sampler
+│   └── embedding_extractor.py    # Latent 128-dim embedding extractor
 │
-├── xai/                          # Scaffolding for Phase 5 Explainable AI
-│   └── explainability.py         # Grad-CAM and SHAP interpretability utilities
+├── xai/                          # Phase 5 Explainable AI
+│   ├── explainability.py         # Grad-CAM and KernelSHAP interpretability
+│   ├── cross_modal_analysis.py   # Integrated spatial-temporal convergence analysis
+│   └── visualization.py          # Multi-panel XAI figure generator
+│
+├── evaluation/                   # Phase 6 Evaluation & Statistics
+│   ├── ablation_runner.py        # 4-condition ablation benchmark runner
+│   ├── statistical_tests.py      # Paired t-tests, Wilcoxon & Bootstrap 95% CIs
+│   ├── report_generator.py       # Publication-ready Markdown & LaTeX table generator
+│   └── neuro_interpretation.py   # Neurobiological circuit mapping
 │
 ├── notebooks/                    # Demonstration scripts and visual deliverables
 │   ├── phase0_demo.py            # Phase 0 validation runner
 │   ├── fmri_cc200_connectivity.png # CC200 connectivity matrix heatmap
 │   └── eeg_visualization.png     # EEG waveforms and PLV matrix visualization
+│
+├── results/                      # Output figures, tables, and reports
+│   ├── figures/                  # Ablation, convergence, attention, and XAI figures
+│   ├── tables/                   # Summary comparison tables & raw metrics
+│   └── methods_draft.md          # Publication-ready methods section draft
 │
 └── data/                         # Data directory (managed & cached)
     ├── manifests/                # Cohort manifest CSVs & summary reports
@@ -168,7 +210,7 @@ cp .env.example .env
 
 ## ⚡ Execution & Verification
 
-### Run Full Pipeline (Phases 0 through 3)
+### Run Full Pipeline (Phases 0 through 6)
 ```bash
 python run_pipeline.py
 ```
@@ -186,22 +228,22 @@ python run_pipeline.py
   ```bash
   python models/fmri/encoder.py
   ```
-- **Phase 3 EEG Encoder & Baseline**:
+- **Phase 3 EEG Encoder**:
   ```bash
   python models/eeg/encoder.py
   ```
-
----
-
-## 📊 Summary of Model Checkpoints & Deliverables
-
-| Deliverable | Description | Output Location / Metrics |
-| :--- | :--- | :--- |
-| **fMRI CC200 Matrix** | $200 \times 200$ Fisher $z$-transformed correlation matrix | `data/processed/fmri/` (`.npy`, `.h5`) |
-| **EEG PLV Matrix** | **16 × 16** Phase Locking Value matrix (KAU: 16 channels) | `data/processed/eeg/` (`.npy`, `.h5`) |
-| **Cohort Manifests** | Subject counts, diagnosis, age, channels, overlap status | `data/manifests/abide_manifest.csv`<br>`data/manifests/eeg_manifest.csv` |
-| **fMRI Encoder** | 128-dim 2D-CNN feature representation | `models/fmri/fmri_encoder.pt` |
-| **EEG Encoder** | 128-dim 2D-CNN (arch. validated on synthetic 16×16 PLV) | `models/eeg/eeg_encoder.pt`<br>Real training: obtain KAU data via doi:10.3390/app7020183 |
+- **Phase 4 Multimodal Fusion**:
+  ```bash
+  python fusion/fusion_trainer.py
+  ```
+- **Phase 5 Explainable AI**:
+  ```bash
+  python xai/visualization.py
+  ```
+- **Phase 6 Ablation Study**:
+  ```bash
+  python evaluation/ablation_runner.py
+  ```
 
 ---
 

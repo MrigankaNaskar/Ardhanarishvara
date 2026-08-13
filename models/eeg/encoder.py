@@ -31,8 +31,9 @@ from security.sanitized_logging import sanitize_errors, log_info
 
 class EEG2DCNNEncoder(nn.Module):
     """
-    2D-CNN Encoder for EEG Connectivity Matrices (e.g. 64x64 PLV matrices).
+    2D-CNN Encoder for EEG Connectivity Matrices (e.g. 16x16 PLV matrices from 16-channel KAU montage).
     Mirrored architecture: Conv2D(32, k=5) -> Conv2D(64, k=3) -> Conv2D(128, k=3) -> GlobalAvgPool -> Dense(128).
+    Extracts 128-dimensional embedding vector per subject regardless of input matrix resolution via Global Average Pooling.
     """
     def __init__(self, embedding_dim: int = 128, num_classes: int = 2):
         super().__init__()

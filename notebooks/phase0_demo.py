@@ -6,10 +6,19 @@ Saves visualization figures to notebooks/ outputs.
 """
 
 import os
+import sys
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+import matplotlib
+matplotlib.use("Agg")
 # pyrefly: ignore[missing-import]
 import matplotlib.pyplot as plt
 # pyrefly: ignore[missing-import]
 import numpy as np
+
 import config
 from preprocessing.fmri_pipeline import process_fmri_subject
 from preprocessing.eeg_pipeline import generate_sample_eeg_raw, preprocess_eeg_raw, extract_eeg_psd, compute_eeg_connectivity
@@ -22,7 +31,6 @@ def run_phase0_demo():
     # 1. fMRI CC200 End-to-End Test
     log_info("1/2: Generating fMRI CC200 Connectivity Matrix...")
     rng = np.random.RandomState(config.RANDOM_SEED)
-    # Generate 150 timepoints x 200 ROIs sample timeseries
     sample_fmri_ts = rng.randn(150, 200)
     fmri_matrix = process_fmri_subject(sample_fmri_ts, subject_id="demo_abide_001")
 
@@ -30,7 +38,7 @@ def run_phase0_demo():
     fig, ax = plt.subplots(figsize=(8, 7))
     cax = ax.matshow(fmri_matrix, cmap="coolwarm", vmin=-1.0, vmax=1.0)
     fig.colorbar(cax)
-    ax.set_title("fMRI CC200 Functional Connectivity Matrix (Fisher z)", fontsize=12)
+    ax.set_title(f"fMRI CC200 Functional Connectivity Matrix ({config.CC200_N_ROIS}x{config.CC200_N_ROIS})", fontsize=12)
     ax.set_xlabel("Craddock 200 ROI Index")
     ax.set_ylabel("Craddock 200 ROI Index")
     plt.tight_layout()
@@ -39,11 +47,9 @@ def run_phase0_demo():
     plt.close()
     log_info(f"Saved fMRI connectivity plot to {fmri_plot_path}")
 
-    # 2. EEG Pipeline Verification & Visualization
+    # 2. Authentic EEG MNE Preprocessing & Connectivity Matrix
     log_info("2/2: Loading & Preprocessing EEG Data...")
-    # Use KAU ASD EEG dataset defaults: 16 channels, 256 Hz (Djemal et al., 2017)
-    # Override with n_channels=64, sfreq=250 here for architecture demo only if needed
-    raw_eeg = generate_sample_eeg_raw()  # defaults: n_channels=16, sfreq=256 Hz
+    raw_eeg = generate_sample_eeg_raw(n_channels=config.EEG_N_CHANNELS, sfreq=256.0, duration_sec=10.0)
     clean_eeg = preprocess_eeg_raw(raw_eeg)
     psd_dict = extract_eeg_psd(clean_eeg)
     eeg_conn = compute_eeg_connectivity(clean_eeg, subject_id="demo_eeg_001")
@@ -52,14 +58,14 @@ def run_phase0_demo():
     # Plot & Save EEG Waveform & Connectivity Visualizations
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Waveforms (First 5 channels, or all if fewer than 5)
+    # Waveforms (First 5 channels)
     n_plot = min(5, clean_eeg.get_data().shape[0])
     data = clean_eeg.get_data()[:n_plot, :1000]
     times = clean_eeg.times[:1000]
     for ch_idx in range(n_plot):
         ch_label = clean_eeg.ch_names[ch_idx]
         ax1.plot(times, data[ch_idx] * 1e6 + ch_idx * 50, label=ch_label)
-    ax1.set_title("Preprocessed EEG Waveforms (First 5 Channels)", fontsize=12)
+    ax1.set_title("Preprocessed EEG Waveforms (KAU 10-20 Channels)", fontsize=12)
     ax1.set_xlabel("Time (seconds)")
     ax1.set_ylabel("Amplitude (µV, offset)")
     ax1.legend(loc="upper right")

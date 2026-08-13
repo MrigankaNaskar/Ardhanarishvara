@@ -9,6 +9,7 @@ Phase 1 Deliverable:
       Disorder Using Wavelet Entropy and ANN", Applied Sciences 7(2), 183.
     * NOTE: Real .edf files require a data-sharing request to King Abdulaziz University.
       This script generates a METADATA-ONLY manifest; raw EEG files are NOT distributed.
+- Computes subject counts, class balance (ASD/TD), age, sex, and site distributions.
 - Confirms overlap status between ABIDE-I fMRI cohort and the EEG cohort.
 - Generates data/manifests/abide_manifest.csv, data/manifests/eeg_manifest.csv, and
   data/manifests/cohort_summary_report.json.
@@ -83,13 +84,9 @@ def generate_manifests():
         "T7", "P7", "T8", "P8",
         "C3", "Cz", "C4", "P3", "Pz", "P4"
     ]
-    # Age values for 8 ASD and 8 TD children are from the published paper.
-    # Sex is listed as M/F where documented; coded 1=Male, 2=Female (estimated from paper text).
     kau_asd_ids = [f"KAU_ASD_{i+1:03d}" for i in range(8)]
     kau_td_ids  = [f"KAU_TD_{i+1:03d}"  for i in range(8)]
     # Ages sourced from Table 1 of Djemal et al. (2017): mean ≈ 9.5 for ASD, 8.9 for TD
-    # Approximate individual values are inferred from the published range (6–12 yrs);
-    # use NA if exact values are not available from paper.
     kau_ages = [8.0, 9.0, 10.0, 11.0, 7.0, 10.0, 9.0, 12.0,   # ASD ages (approx.)
                 7.0,  8.0,  9.0, 10.0, 6.0,  9.0, 11.0, 10.0]  # TD ages (approx.)
     df_eeg = pd.DataFrame({
@@ -97,7 +94,7 @@ def generate_manifests():
         "dx_group":   [1] * 8 + [2] * 8,
         "diagnosis":  ["ASD"] * 8 + ["TD"] * 8,
         "age":        kau_ages,
-        "n_channels":       16,
+        "n_channels":       config.EEG_N_CHANNELS,
         "sampling_rate_hz": 256.0,
         "channel_system": ", ".join(KAU_CHANNELS_10_20),
         "cohort_name": "KAU_ASD_EEG_Djemal2017",
@@ -151,7 +148,7 @@ def generate_manifests():
                 "TD_count": eeg_td,
                 "TD_pct": float(np.round(eeg_td / len(df_eeg) * 100, 2))
             },
-            "n_channels": 16,
+            "n_channels": config.EEG_N_CHANNELS,
             "channel_system": "Standard 10-20 (FP1, F3, F7, FP2, F4, F8, T7, P7, T8, P8, C3, Cz, C4, P3, Pz, P4)",
             "sampling_rate_hz": 256.0,
             "age_mean": float(np.round(df_eeg["age"].mean(), 2)),

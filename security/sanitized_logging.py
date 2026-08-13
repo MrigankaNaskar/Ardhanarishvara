@@ -71,4 +71,8 @@ def sanitize_errors(user_message="An internal error occurred during data process
 def log_info(msg: str):
     """Log non-sensitive informative operational status."""
     logger.info(msg)
-    print(f"[INFO] {msg}")
+    try:
+        print(f"[INFO] {msg}")
+    except UnicodeEncodeError:
+        safe_msg = msg.encode("ascii", errors="replace").decode("ascii")
+        print(f"[INFO] {safe_msg}")
