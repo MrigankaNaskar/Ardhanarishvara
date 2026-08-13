@@ -39,19 +39,24 @@ def run_phase0_demo():
 
     # 2. EEG Pipeline Verification & Visualization
     log_info("2/2: Loading & Preprocessing EEG Data...")
-    raw_eeg = generate_sample_eeg_raw(n_channels=64, sfreq=250.0, duration_sec=10.0)
+    # Use KAU ASD EEG dataset defaults: 16 channels, 256 Hz (Djemal et al., 2017)
+    # Override with n_channels=64, sfreq=250 here for architecture demo only if needed
+    raw_eeg = generate_sample_eeg_raw()  # defaults: n_channels=16, sfreq=256 Hz
     clean_eeg = preprocess_eeg_raw(raw_eeg)
     psd_dict = extract_eeg_psd(clean_eeg)
     eeg_conn = compute_eeg_connectivity(clean_eeg, subject_id="demo_eeg_001")
+    n_ch = eeg_conn.shape[0]
 
     # Plot & Save EEG Waveform & Connectivity Visualizations
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Waveforms (First 5 channels)
-    data = clean_eeg.get_data()[:5, :1000]
+    # Waveforms (First 5 channels, or all if fewer than 5)
+    n_plot = min(5, clean_eeg.get_data().shape[0])
+    data = clean_eeg.get_data()[:n_plot, :1000]
     times = clean_eeg.times[:1000]
-    for ch_idx in range(5):
-        ax1.plot(times, data[ch_idx] * 1e6 + ch_idx * 50, label=f"Ch {ch_idx+1}")
+    for ch_idx in range(n_plot):
+        ch_label = clean_eeg.ch_names[ch_idx]
+        ax1.plot(times, data[ch_idx] * 1e6 + ch_idx * 50, label=ch_label)
     ax1.set_title("Preprocessed EEG Waveforms (First 5 Channels)", fontsize=12)
     ax1.set_xlabel("Time (seconds)")
     ax1.set_ylabel("Amplitude (µV, offset)")
@@ -61,7 +66,7 @@ def run_phase0_demo():
     # EEG Connectivity Matrix
     cax2 = ax2.matshow(eeg_conn, cmap="viridis", vmin=0.0, vmax=1.0)
     fig.colorbar(cax2, ax=ax2)
-    ax2.set_title("EEG Channel-to-Channel PLV Matrix (64x64)", fontsize=12)
+    ax2.set_title(f"EEG Channel-to-Channel PLV Matrix ({n_ch}x{n_ch})", fontsize=12)
     ax2.set_xlabel("EEG Channel Index")
     ax2.set_ylabel("EEG Channel Index")
 
