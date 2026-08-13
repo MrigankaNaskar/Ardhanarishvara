@@ -136,8 +136,8 @@ Ardhanarishvara/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/MrigankaNaskar/Ardhanarishvara-One-being-two-signals_a-unified-view-into-neurodevelopment.git
-cd Ardhanarishvara-One-being-two-signals_a-unified-view-into-neurodevelopment
+git clone https://github.com/avikengineer007/Ardhanarishvara.git
+cd Ardhanarishvara
 ```
 
 ### 2. Set Up Python Virtual Environment
@@ -217,6 +217,6 @@ If you use Ardhanarishvara in your research or applications, please cite:
   author = {Mriganka Naskar and Avik Ghosh},
   title = {Ardhanarishvara: One being, two signals — a unified view into neurodevelopment},
   year = {2026},
-  url = {https://github.com/MrigankaNaskar/Ardhanarishvara-One-being-two-signals_a-unified-view-into-neurodevelopment}
+  url = {https://github.com/avikengineer007/Ardhanarishvara}
 }
 ```
