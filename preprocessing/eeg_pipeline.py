@@ -4,6 +4,16 @@ Preprocess raw EEG using MNE: bandpass filter (0.5-45Hz), notch filter (50/60Hz)
 Extract per-channel Power Spectral Density (PSD) across standard frequency bands (delta, theta, alpha, beta, gamma).
 Build channel x channel functional connectivity matrix (Phase Locking Value / Spectral Coherence).
 Enforces security validation, file safety, and sanitized error logging.
+
+Target dataset: King Abdulaziz University (KAU) ASD EEG Dataset (Djemal et al., 2017)
+  - 16 subjects: 8 ASD, 8 TD children
+  - 16 EEG channels, standard 10-20 system: FP1, F3, F7, FP2, F4, F8, T7, P7, T8, P8, C3, Cz, C4, P3, Pz, P4
+  - Sampling rate: 256 Hz
+  - Connectivity output: 16x16 Phase Locking Value (PLV) matrix
+  - NOTE: Raw EEG files require a data-sharing request to King Abdulaziz University.
+    This pipeline is ready to process real .edf files once obtained.
+    The generate_sample_eeg_raw() function below generates SYNTHETIC data for
+    architecture validation ONLY.
 """
 
 import os
@@ -25,12 +35,27 @@ FREQ_BANDS = {
 
 
 @sanitize_errors("Failed to create sample EEG recording.")
-def generate_sample_eeg_raw(n_channels: int = 64, sfreq: float = 250.0, duration_sec: float = 10.0) -> mne.io.Raw:
-    """Generate a clean synthetic MNE Raw EEG object for isolated testing and baseline pipeline demonstration."""
+def generate_sample_eeg_raw(n_channels: int = 16, sfreq: float = 256.0, duration_sec: float = 10.0) -> mne.io.Raw:
+    """Generate a clean synthetic MNE Raw EEG object for isolated testing and baseline pipeline demonstration.
+
+    Defaults match the real KAU ASD EEG dataset (Djemal et al., 2017):
+      - n_channels=16 (standard 10-20 system)
+      - sfreq=256.0 Hz
+    Real .edf files require a data-sharing request to King Abdulaziz University.
+    """
+    KAU_CHANNELS_10_20 = [
+        "FP1", "F3", "F7", "FP2", "F4", "F8",
+        "T7", "P7", "T8", "P8",
+        "C3", "Cz", "C4", "P3", "Pz", "P4"
+    ]
+    if n_channels == 16:
+        ch_names = KAU_CHANNELS_10_20
+    else:
+        ch_names = [f"EEG{i+1:03d}" for i in range(n_channels)]
+
     n_samples = int(sfreq * duration_sec)
-    ch_names = [f"EEG{i+1:03d}" for i in range(n_channels)]
     info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types="eeg")
-    
+
     # Generate realistic multi-frequency signal with noise
     t = np.linspace(0, duration_sec, n_samples)
     data = np.zeros((n_channels, n_samples))
