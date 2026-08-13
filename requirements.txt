@@ -1,12 +1,13 @@
-# Ardhanarishvara Core Dependencies (Pinned for reproducibility & security audit)
+# Ardhanarishvara Core Dependencies (Exact environment lockfile)
 nilearn==0.14.0
 mne==1.12.1
 nipype==1.11.0
-torch==2.12.1
+torch==2.13.0
+torchvision==0.28.0
 grad-cam==1.5.5
-scikit-learn==1.9.0
+scikit-learn==1.8.0
 shap==0.52.0
-h5py==3.15.0
+h5py==3.16.0
 pandas==2.3.3
 numpy==2.4.6
 matplotlib==3.11.0

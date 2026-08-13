@@ -1,28 +1,55 @@
 {
   "abide_fMRI_cohort": {
-    "total_subjects": 100,
+    "dataset_name": "ABIDE-I (Autism Brain Imaging Data Exchange I)",
+    "total_subjects": 1112,
     "class_balance": {
-      "ASD_count": 51,
-      "ASD_pct": 51.0,
-      "TD_count": 49,
-      "TD_pct": 49.0
+      "ASD_count": 539,
+      "ASD_pct": 48.47,
+      "TD_count": 573,
+      "TD_pct": 51.53
     },
-    "age_mean": 22.93
+    "age_mean": 17.05,
+    "age_std": 8.04,
+    "site_distribution": {
+      "NYU": 184,
+      "UM_1": 110,
+      "USM": 101,
+      "UCLA_1": 82,
+      "MAX_MUN": 57,
+      "PITT": 57,
+      "YALE": 56,
+      "KKI": 55,
+      "TRINITY": 49,
+      "STANFORD": 40,
+      "CALTECH": 38,
+      "OLIN": 36,
+      "SDSU": 36,
+      "LEUVEN_2": 35,
+      "UM_2": 35,
+      "SBL": 30,
+      "LEUVEN_1": 29,
+      "OHSU": 28,
+      "CMU": 27,
+      "UCLA_2": 27
+    }
   },
   "EEG_cohort": {
-    "dataset_name": "OpenNeuro_ds003774_ASD_EEG",
-    "total_subjects": 80,
+    "dataset_name": "KAU_SFARI_Autism_EEG_Cohort",
+    "total_subjects": 110,
     "class_balance": {
-      "ASD_count": 39,
-      "ASD_pct": 48.75,
-      "TD_count": 41,
-      "TD_pct": 51.25
+      "ASD_count": 66,
+      "ASD_pct": 60.0,
+      "TD_count": 44,
+      "TD_pct": 40.0
     },
-    "age_mean": 11.93
+    "n_channels": 64,
+    "sampling_rate_hz": 250.0,
+    "age_mean": 10.33,
+    "age_std": 2.76
   },
   "cohort_overlap_analysis": {
     "overlapping_subjects_count": 0,
     "overlap_status": "ZERO_OVERLAP_UNALIGNED_MULTIMODAL",
-    "details": "fMRI (ABIDE-I) and EEG cohorts are unaligned separate populations requiring late/embedding fusion."
+    "details": "fMRI (ABIDE-I) and EEG (KAU/SFARI) cohorts are separate clinical populations confirming unaligned multimodal setup."
   }
 }

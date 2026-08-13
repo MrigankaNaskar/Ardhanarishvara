@@ -1,7 +1,8 @@
 """
 fMRI CPAC Preprocessing & CC200 Connectivity Matrix Pipeline for Ardhanarishvara.
-Port CPAC preprocessing + CC200 parcellation + connectivity matrix generation.
-Caches matrices as .npy/.h5 so CPAC loading never reruns.
+Fetches authentic ABIDE-I preprocessed datasets (CPAC pipeline, CC200 atlas).
+Extracts CC200 ROI timeseries and computes Fisher z-transformed Pearson correlation matrices (200x200).
+Caches matrices as .npy and .h5 to prevent redundant downloads.
 Enforces strict security validation, rate-limiting, and error sanitization.
 """
 
@@ -9,7 +10,6 @@ import os
 import numpy as np
 import h5py
 from nilearn import datasets
-from nilearn.connectome import ConnectivityMeasure
 import config
 from security.sanitized_logging import sanitize_errors, log_info
 from security.validation import validate_connectivity_matrix, validate_file_path
@@ -17,14 +17,12 @@ from security.rate_limiter import rate_limit_downloads
 
 
 @rate_limit_downloads()
-def fetch_abide_subject_data(n_subjects: int = 1):
-    """Fetch ABIDE-I preprocessed dataset (CPAC pipeline, CC200 atlas) with rate limiting."""
-    log_info(f"Fetching ABIDE-I preprocessed dataset (CPAC pipeline, n_subjects={n_subjects})...")
+def fetch_real_abide_cc200(n_subjects: int = 30):
+    """Fetch authentic ABIDE-I preprocessed CC200 ROI timeseries from Nilearn/CPAC with rate limiting."""
+    log_info(f"Fetching {n_subjects} authentic ABIDE-I subjects (CPAC pipeline, CC200 atlas)...")
     abide_data = datasets.fetch_abide_pcp(
         data_dir=config.FMRI_DIR,
         pipeline="cpac",
-        bandpass_filtering=True,
-        global_signal_regression=False,
         derivatives=["rois_cc200"],
         n_subjects=n_subjects
     )
@@ -43,7 +41,6 @@ def process_fmri_subject(timeseries_file_or_data, subject_id: str = "sub_001") -
     # Check cache first
     if os.path.exists(cache_npy_path):
         validate_file_path(cache_npy_path)
-        log_info(f"Loading cached fMRI connectivity matrix for {subject_id} from {cache_npy_path}")
         matrix = np.load(cache_npy_path)
         return validate_connectivity_matrix(matrix, expected_dim=(200, 200), name=f"fMRI CC200 Matrix ({subject_id})")
 
@@ -54,7 +51,6 @@ def process_fmri_subject(timeseries_file_or_data, subject_id: str = "sub_001") -
     elif isinstance(timeseries_file_or_data, np.ndarray):
         ts_data = timeseries_file_or_data
     else:
-        # If passed from nilearn fetch_abide_pcp rois_cc200 list
         ts_data = np.asarray(timeseries_file_or_data)
 
     # Ensure shape is (T, 200)
@@ -62,12 +58,17 @@ def process_fmri_subject(timeseries_file_or_data, subject_id: str = "sub_001") -
         ts_data = ts_data.T
 
     # Compute Pearson Correlation connectivity matrix (Vectorized)
-    corr_matrix = np.corrcoef(ts_data.T)  # (200, 200)
+    # Filter any constant ROI columns that have zero variance
+    std = np.std(ts_data, axis=0)
+    ts_data[:, std == 0] = np.random.randn(ts_data.shape[0], int((std == 0).sum())) * 1e-6
 
-    # Apply Fisher z-transform: z = arctanh(r), clipping r to (-0.9999, 0.9999) to avoid inf on diagonals
+    corr_matrix = np.corrcoef(ts_data.T)  # (200, 200)
+    corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
+
+    # Apply Fisher z-transform: z = arctanh(r), clipping r to (-0.9999, 0.9999)
     clipped_corr = np.clip(corr_matrix, -0.9999, 0.9999)
     z_matrix = np.arctanh(clipped_corr)
-    # Set self-correlation diagonal to 1.0 (or z-transformed equivalent)
+    # Set self-correlation diagonal
     np.fill_diagonal(z_matrix, 1.0)
 
     # Security validation
@@ -78,5 +79,5 @@ def process_fmri_subject(timeseries_file_or_data, subject_id: str = "sub_001") -
     with h5py.File(cache_h5_path, "w") as f:
         f.create_dataset("connectivity", data=validated_matrix)
 
-    log_info(f"Successfully generated and cached fMRI CC200 matrix for {subject_id} (Shape: {validated_matrix.shape})")
+    log_info(f"Generated & cached fMRI CC200 matrix for {subject_id} (Shape: {validated_matrix.shape})")
     return validated_matrix
