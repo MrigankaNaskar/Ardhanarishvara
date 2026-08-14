@@ -11,9 +11,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
+# pyrefly: ignore[missing-import]
 import matplotlib
 matplotlib.use("Agg")
+# pyrefly: ignore[missing-import]
 import matplotlib.pyplot as plt
+# pyrefly: ignore[missing-import]
 import numpy as np
 import config
 from preprocessing.fmri_pipeline import process_fmri_subject
@@ -45,20 +48,23 @@ def run_phase0_demo():
 
     # 2. Authentic EEG MNE Preprocessing & Connectivity Matrix
     log_info("2/2: Loading & Preprocessing EEG Data...")
-    raw_eeg = generate_sample_eeg_raw(n_channels=config.EEG_N_CHANNELS, sfreq=250.0, duration_sec=10.0)
+    # Use KAU ASD EEG dataset defaults: 16 channels, 256 Hz (Djemal et al., 2017)
+    raw_eeg = generate_sample_eeg_raw(n_channels=config.EEG_N_CHANNELS, sfreq=256.0, duration_sec=10.0)
     clean_eeg = preprocess_eeg_raw(raw_eeg)
     psd_dict = extract_eeg_psd(clean_eeg)
     eeg_conn = compute_eeg_connectivity(clean_eeg, subject_id="demo_eeg_001")
+    n_ch = eeg_conn.shape[0]
 
     # Plot & Save EEG Waveform & Connectivity Visualizations
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
     # Waveforms (First 5 channels)
-    data = clean_eeg.get_data()[:min(5, config.EEG_N_CHANNELS), :1000]
+    n_plot = min(5, clean_eeg.get_data().shape[0])
+    data = clean_eeg.get_data()[:n_plot, :1000]
     times = clean_eeg.times[:1000]
-    for ch_idx in range(data.shape[0]):
-        ch_name = clean_eeg.ch_names[ch_idx]
-        ax1.plot(times, data[ch_idx] * 1e6 + ch_idx * 50, label=ch_name)
+    for ch_idx in range(n_plot):
+        ch_label = clean_eeg.ch_names[ch_idx]
+        ax1.plot(times, data[ch_idx] * 1e6 + ch_idx * 50, label=ch_label)
     ax1.set_title("Preprocessed EEG Waveforms (KAU 10-20 Channels)", fontsize=12)
     ax1.set_xlabel("Time (seconds)")
     ax1.set_ylabel("Amplitude (µV, offset)")
@@ -68,7 +74,7 @@ def run_phase0_demo():
     # EEG Connectivity Matrix
     cax2 = ax2.matshow(eeg_conn, cmap="viridis", vmin=0.0, vmax=1.0)
     fig.colorbar(cax2, ax=ax2)
-    ax2.set_title(f"EEG Channel-to-Channel PLV Matrix ({config.EEG_N_CHANNELS}x{config.EEG_N_CHANNELS})", fontsize=12)
+    ax2.set_title(f"EEG Channel-to-Channel PLV Matrix ({n_ch}x{n_ch})", fontsize=12)
     ax2.set_xlabel("EEG Channel Index")
     ax2.set_ylabel("EEG Channel Index")
 

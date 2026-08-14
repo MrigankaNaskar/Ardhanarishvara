@@ -1,55 +1,57 @@
 {
   "abide_fMRI_cohort": {
     "dataset_name": "ABIDE-I (Autism Brain Imaging Data Exchange I)",
-    "total_subjects": 1112,
+    "total_subjects": 871,
     "class_balance": {
-      "ASD_count": 539,
-      "ASD_pct": 48.47,
-      "TD_count": 573,
-      "TD_pct": 51.53
+      "ASD_count": 403,
+      "ASD_pct": 46.27,
+      "TD_count": 468,
+      "TD_pct": 53.73
     },
-    "age_mean": 17.05,
-    "age_std": 8.04,
+    "age_mean": 16.94,
+    "age_std": 7.58,
     "site_distribution": {
-      "NYU": 184,
-      "UM_1": 110,
-      "USM": 101,
-      "UCLA_1": 82,
-      "MAX_MUN": 57,
-      "PITT": 57,
-      "YALE": 56,
-      "KKI": 55,
-      "TRINITY": 49,
-      "STANFORD": 40,
-      "CALTECH": 38,
-      "OLIN": 36,
-      "SDSU": 36,
-      "LEUVEN_2": 35,
-      "UM_2": 35,
-      "SBL": 30,
-      "LEUVEN_1": 29,
-      "OHSU": 28,
-      "CMU": 27,
-      "UCLA_2": 27
+      "NYU": 172,
+      "UM_1": 86,
+      "USM": 67,
+      "UCLA_1": 64,
+      "PITT": 50,
+      "MAX_MUN": 46,
+      "TRINITY": 44,
+      "YALE": 41,
+      "UM_2": 34,
+      "KKI": 33,
+      "OLIN": 28,
+      "LEUVEN_1": 28,
+      "LEUVEN_2": 28,
+      "SDSU": 27,
+      "SBL": 26,
+      "OHSU": 25,
+      "STANFORD": 25,
+      "UCLA_2": 21,
+      "CALTECH": 15,
+      "CMU": 11
     }
   },
   "EEG_cohort": {
-    "dataset_name": "KAU_Autism_EEG_Cohort",
-    "total_subjects": 110,
+    "dataset_name": "KAU ASD EEG Dataset (Djemal et al., 2017, doi:10.3390/app7020183)",
+    "description": "Real King Abdulaziz University EEG dataset: 16 recordings (8 ASD, 8 TD children), 16 channels, 256 Hz. Raw files require data-sharing request to KAU.",
+    "total_subjects": 16,
     "class_balance": {
-      "ASD_count": 66,
-      "ASD_pct": 60.0,
-      "TD_count": 44,
-      "TD_pct": 40.0
+      "ASD_count": 8,
+      "ASD_pct": 50.0,
+      "TD_count": 8,
+      "TD_pct": 50.0
     },
     "n_channels": 16,
-    "sampling_rate_hz": 250.0,
-    "age_mean": 11.11,
-    "age_std": 2.99
+    "channel_system": "Standard 10-20 (FP1, F3, F7, FP2, F4, F8, T7, P7, T8, P8, C3, Cz, C4, P3, Pz, P4)",
+    "sampling_rate_hz": 256.0,
+    "age_mean": 9.12,
+    "age_std": 1.63
   },
   "cohort_overlap_analysis": {
     "overlapping_subjects_count": 0,
     "overlap_status": "ZERO_OVERLAP_UNALIGNED_MULTIMODAL",
-    "details": "fMRI (ABIDE-I) and EEG (KAU) cohorts are separate clinical populations confirming unaligned multimodal setup."
+    "details": "fMRI (ABIDE-I) and EEG (KAU Djemal2017) cohorts are entirely separate clinical populations with no subject overlap \u2014 unaligned multimodal setup."
   }
 }

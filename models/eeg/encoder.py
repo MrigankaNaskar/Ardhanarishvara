@@ -5,6 +5,14 @@ Phase 3 Deliverable:
 - SVM Baseline Classifier for performance comparison.
 - Generates 128-dim embedding vector.
 - Saves model checkpoint to models/eeg/eeg_encoder.pt.
+
+Target dataset: King Abdulaziz University (KAU) ASD EEG Dataset (Djemal et al., 2017)
+  - 16 subjects: 8 ASD, 8 TD
+  - 16 EEG channels (standard 10-20): FP1, F3, F7, FP2, F4, F8, T7, P7, T8, P8, C3, Cz, C4, P3, Pz, P4
+  - Sampling rate: 256 Hz
+  - Input connectivity matrix: 16x16 Phase Locking Value (PLV)
+  - NOTE: Real EEG files require data-sharing request to KAU. The __main__ block
+    below uses synthetic matrices for architecture validation ONLY.
 """
 
 import os
@@ -191,14 +199,22 @@ def train_eeg_encoder(matrices: np.ndarray, labels: np.ndarray, epochs: int = 15
 
 
 if __name__ == "__main__":
+    # ARCHITECTURE VALIDATION ONLY — uses synthetic data.
+    # Real KAU dataset: 16 subjects (8 ASD + 8 TD), 16 channels, 256 Hz -> 16x16 PLV matrices.
+    # Obtain real data via data-sharing request to King Abdulaziz University
+    # (doi:10.3390/app7020183) before running a genuine training loop.
     rng = np.random.RandomState(config.RANDOM_SEED)
-    N = 60
-    matrices = np.zeros((N, 64, 64))
-    labels = rng.choice([0, 1], size=N, p=[0.5, 0.5])
-    for i in range(N):
-        mat = rng.randn(64, 64)
+    N_SUBJECTS = 16          # real KAU count
+    N_CHANNELS = 16          # real KAU channels (10-20 system)
+    matrices = np.zeros((N_SUBJECTS, N_CHANNELS, N_CHANNELS))
+    # 8 ASD (label=0) + 8 TD (label=1)
+    labels = np.array([0] * 8 + [1] * 8)
+    for i in range(N_SUBJECTS):
+        mat = rng.randn(N_CHANNELS, N_CHANNELS)
         sym = (mat + mat.T) / 2.0
         np.fill_diagonal(sym, 1.0)
         matrices[i] = sym
 
-    train_eeg_encoder(matrices, labels, epochs=10)
+    print("[ARCHITECTURE VALIDATION] Running on synthetic 16x16 PLV matrices (N=16).")
+    print("Real KAU EEG data required for genuine training.")
+    train_eeg_encoder(matrices, labels, epochs=5)
