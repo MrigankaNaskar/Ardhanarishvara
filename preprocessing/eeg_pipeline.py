@@ -34,6 +34,10 @@ FREQ_BANDS = {
 }
 
 
+<<<<<<< HEAD
+=======
+# Standard 16-Channel 10-20 Extended Montage used in KAU ASD EEG Cohort
+>>>>>>> 41d5ec0258ccbfd45872db8bbbf9cb675e63b0a1
 KAU_CHANNELS_10_20 = [
     "FP1", "F3", "F7", "FP2", "F4", "F8",
     "T7", "P7", "T8", "P8",

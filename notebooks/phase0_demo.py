@@ -7,6 +7,7 @@ Saves visualization figures to notebooks/ outputs.
 
 import os
 import sys
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
@@ -18,6 +19,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 # pyrefly: ignore[missing-import]
 import numpy as np
+
 import config
 from preprocessing.fmri_pipeline import process_fmri_subject
 from preprocessing.eeg_pipeline import generate_sample_eeg_raw, preprocess_eeg_raw, extract_eeg_psd, compute_eeg_connectivity
@@ -48,7 +50,10 @@ def run_phase0_demo():
 
     # 2. Authentic EEG MNE Preprocessing & Connectivity Matrix
     log_info("2/2: Loading & Preprocessing EEG Data...")
+<<<<<<< HEAD
     # Use KAU ASD EEG dataset defaults: 16 channels, 256 Hz (Djemal et al., 2017)
+=======
+>>>>>>> 41d5ec0258ccbfd45872db8bbbf9cb675e63b0a1
     raw_eeg = generate_sample_eeg_raw(n_channels=config.EEG_N_CHANNELS, sfreq=256.0, duration_sec=10.0)
     clean_eeg = preprocess_eeg_raw(raw_eeg)
     psd_dict = extract_eeg_psd(clean_eeg)
