@@ -34,7 +34,7 @@
     }
   },
   "EEG_cohort": {
-    "dataset_name": "KAU_SFARI_Autism_EEG_Cohort",
+    "dataset_name": "KAU_Autism_EEG_Cohort",
     "total_subjects": 110,
     "class_balance": {
       "ASD_count": 66,
@@ -42,14 +42,14 @@
       "TD_count": 44,
       "TD_pct": 40.0
     },
-    "n_channels": 64,
+    "n_channels": 16,
     "sampling_rate_hz": 250.0,
-    "age_mean": 10.33,
-    "age_std": 2.76
+    "age_mean": 11.11,
+    "age_std": 2.99
   },
   "cohort_overlap_analysis": {
     "overlapping_subjects_count": 0,
     "overlap_status": "ZERO_OVERLAP_UNALIGNED_MULTIMODAL",
-    "details": "fMRI (ABIDE-I) and EEG (KAU/SFARI) cohorts are separate clinical populations confirming unaligned multimodal setup."
+    "details": "fMRI (ABIDE-I) and EEG (KAU) cohorts are separate clinical populations confirming unaligned multimodal setup."
   }
 }

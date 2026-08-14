@@ -24,11 +24,25 @@ FREQ_BANDS = {
 }
 
 
+# Standard 16-Channel 10-20 Extended Montage used in KAU ASD EEG Cohort (Alhaddad et al., 2012)
+KAU_16_CHANNELS = [
+    "Fp1", "Fp2", "F3", "F4", "C3", "C4", "P3", "P4",
+    "O1", "O2", "F7", "F8", "T3", "T4", "T5", "T6"
+]
+
+
 @sanitize_errors("Failed to create sample EEG recording.")
-def generate_sample_eeg_raw(n_channels: int = 64, sfreq: float = 250.0, duration_sec: float = 10.0) -> mne.io.Raw:
-    """Generate a clean synthetic MNE Raw EEG object for isolated testing and baseline pipeline demonstration."""
+def generate_sample_eeg_raw(n_channels: int = 16, sfreq: float = 250.0, duration_sec: float = 10.0) -> mne.io.Raw:
+    """
+    Generate an MNE Raw EEG object with authentic 10-20 channel layout (KAU 16-channel montage).
+    Used for pipeline verification and baseline testing.
+    """
     n_samples = int(sfreq * duration_sec)
-    ch_names = [f"EEG{i+1:03d}" for i in range(n_channels)]
+    if n_channels == 16:
+        ch_names = KAU_16_CHANNELS
+    else:
+        ch_names = [f"EEG{i+1:03d}" for i in range(n_channels)]
+
     info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types="eeg")
     
     # Generate realistic multi-frequency signal with noise

@@ -21,17 +21,24 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 
 ```
        ┌───────────────────────────────┐          ┌───────────────────────────────┐
-       │   fMRI Branch (ABIDE-I)       │          │   EEG Branch (KAU/SFARI ASD)  │
-       │   CPAC + CC200 Parcellation   │          │   0.5-45Hz + Notch + ICA      │
+       │   fMRI Branch (ABIDE-I)       │          │   EEG Branch (KAU ASD Cohort) │
+       │   rs-fMRI Timeseries (CC200)  │          │   Raw EEG (16-Ch 10-20 PLV)   │
        └──────────────┬────────────────┘          └──────────────┬────────────────┘
-                      │                                          │
-             Fisher z-Transform                         Vectorized PLV (64x64)
                       │                                          │
                       ▼                                          ▼
        ┌───────────────────────────────┐          ┌───────────────────────────────┐
-       │  fMRI 2D-CNN Encoder (128-d)  │          │  EEG 2D-CNN Encoder (128-d)   │
+       │     fMRI Preprocessing        │          │     EEG Preprocessing         │
+       │     (Craddock 200 Atlas)      │          │    (MNE-Python Pipeline)      │
+       │  200x200 Correlation Matrix   │          │   16x16 PLV Sync Matrix       │
+       │     Fisher z-Transform        │          │   Spectral Band Powers        │
+       └──────────────┬────────────────┘          └──────────────┬────────────────┘
+                      │                                          │
+                      ▼                                          ▼
+       ┌───────────────────────────────┐          ┌───────────────────────────────┐
+       │       fMRI 2D-CNN Encoder     │          │       EEG 2D-CNN Encoder      │
        │  Conv2D(32, k=5) -> Conv(64)  │          │  Conv2D(32, k=5) -> Conv(64)  │
        │  -> Conv(128) -> GAP -> Dense │          │  -> Conv(128) -> GAP -> Dense │
+       │        (128-dim embed)        │          │        (128-dim embed)        │
        └──────────────┬────────────────┘          └──────────────┬────────────────┘
                       │                                          │
                       └─────────────────► ◄──────────────────────┘
@@ -50,11 +57,11 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 ### 🔹 Phase 0 — Environment & Scaffolding
 - Modular directory architecture: `/data`, `/preprocessing`, `/models/fmri`, `/models/eeg`, `/fusion`, `/xai`, `/notebooks`, `/security`.
 - Strict environment locking in `requirements.txt` with verified packages (`torch==2.13.0`, `scikit-learn==1.8.0`, `mne==1.12.1`, `nilearn==0.14.0`, `h5py==3.16.0`, `nibabel==5.4.2`).
-- Deliverables: $200 \times 200$ CC200 correlation matrix heatmap ([`notebooks/fmri_cc200_connectivity.png`](notebooks/fmri_cc200_connectivity.png)) and 64-channel EEG preprocessed waveforms ([`notebooks/eeg_visualization.png`](notebooks/eeg_visualization.png)).
+- Deliverables: $200 \times 200$ CC200 correlation matrix heatmap ([`notebooks/fmri_cc200_connectivity.png`](notebooks/fmri_cc200_connectivity.png)) and 16-channel EEG preprocessed waveforms ([`notebooks/eeg_visualization.png`](notebooks/eeg_visualization.png)).
 
 ### 🔹 Phase 1 — Data Acquisition & Manifests
 - **ABIDE-I fMRI Cohort**: Full phenotypic table parsing (1,112 subjects: 539 ASD, 573 TD across NYU, PITT, UCLA, USM, YALE, etc.).
-- **EEG ASD Benchmark Cohort**: King Abdulaziz University (KAU) / SFARI Multi-Paradigm Autism EEG cohort metadata (66 ASD, 44 TD).
+- **EEG ASD Benchmark Cohort**: King Abdulaziz University (KAU) Autism EEG cohort metadata (66 ASD, 44 TD).
 - **Cohort Overlap Analysis**: Confirms unaligned multimodal setup (`ZERO_OVERLAP_UNALIGNED_MULTIMODAL`).
 - Saved manifests: [`data/manifests/abide_manifest.csv`](data/manifests/abide_manifest.csv), [`data/manifests/eeg_manifest.csv`](data/manifests/eeg_manifest.csv), and [`data/manifests/cohort_summary_report.json`](data/manifests/cohort_summary_report.json).
 
@@ -69,7 +76,7 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 ### 🔹 Phase 3 — EEG Branch
 - MNE preprocessing suite: 0.5–45 Hz bandpass filtering, 50/60 Hz mains notch filtering, average re-referencing, and FastICA artifact rejection.
 - Spectral Power Spectral Density (PSD) extraction across 5 standard bands ($\delta, \theta, \alpha, \beta, \gamma$).
-- Vectorized Phase Locking Value (PLV) channel synchronization ($64 \times 64$).
+- Vectorized Phase Locking Value (PLV) channel synchronization ($16 \times 16$).
 - Mirrored 2D-CNN Encoder alongside RBF-kernel SVM baseline.
 - Saves 128-dimensional latent representations to [`models/eeg/eeg_encoder.pt`](models/eeg/eeg_encoder.pt) (**66.67% Validation Accuracy** vs **50.00% SVM baseline**).
 
@@ -80,7 +87,7 @@ This repository provides an end-to-end research pipeline designed for non-invasi
 | Security Requirement | Implementation Mechanism |
 | :--- | :--- |
 | **API Rate Limiting** | `@rate_limit_downloads` decorator enforces request throttling, backoff delays, and sliding-window minute caps on external data fetches. |
-| **Strict Input Validation** | `security/validation.py` verifies file extensions (`.nii`, `.edf`, `.fif`, `.npy`, `.h5`, `.csv`), file size caps (500 MB max), non-empty rows, matrix dimensions ($200 \times 200$ fMRI, $64 \times 64$ EEG), and NaN/Inf rejection. |
+| **Strict Input Validation** | `security/validation.py` verifies file extensions (`.nii`, `.edf`, `.fif`, `.npy`, `.h5`, `.csv`), file size caps (500 MB max), non-empty rows, matrix dimensions ($200 \times 200$ fMRI, $16 \times 16$ EEG), and NaN/Inf rejection. |
 | **Secrets Protection** | Zero hardcoded tokens/credentials. Environment variables loaded via `.env` and excluded in `.gitignore`. |
 | **Error Sanitization** | `@sanitize_errors` catches raw tracebacks, logging internal paths privately to `logs/system_internal.log` while surfacing sanitized messages to users. |
 
