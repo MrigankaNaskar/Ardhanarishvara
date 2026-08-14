@@ -2,9 +2,6 @@
 Data Manifest Generator & Cohort Overlap Verification for Ardhanarishvara.
 Phase 1 Deliverable:
 - Loads authentic ABIDE-I phenotypic data (1,112 subjects).
-<<<<<<< HEAD
-- Formats EEG cohort manifest using genuine clinical ASD EEG benchmark metadata (King Abdulaziz University Autism EEG Cohort — Djemal et al., 2017).
-=======
 - Formats EEG cohort manifest from the REAL King Abdulaziz University (KAU) ASD EEG dataset:
     * 16 EEG recordings: 8 autistic children (ASD), 8 typically developing children (TD)
     * Recorded at 256 Hz, 16 channels, standard 10-20 placement
@@ -12,7 +9,6 @@ Phase 1 Deliverable:
       Disorder Using Wavelet Entropy and ANN", Applied Sciences 7(2), 183.
     * NOTE: Real .edf files require a data-sharing request to King Abdulaziz University.
       This script generates a METADATA-ONLY manifest; raw EEG files are NOT distributed.
->>>>>>> 41d5ec0258ccbfd45872db8bbbf9cb675e63b0a1
 - Computes subject counts, class balance (ASD/TD), age, sex, and site distributions.
 - Confirms overlap status between ABIDE-I fMRI cohort and the EEG cohort.
 - Generates data/manifests/abide_manifest.csv, data/manifests/eeg_manifest.csv, and data/manifests/cohort_summary_report.json.
@@ -92,14 +88,9 @@ def generate_manifests():
     ]
     kau_asd_ids = [f"KAU_ASD_{i+1:03d}" for i in range(8)]
     kau_td_ids  = [f"KAU_TD_{i+1:03d}"  for i in range(8)]
-<<<<<<< HEAD
-    kau_ages = [8.0, 9.0, 10.0, 11.0, 7.0, 10.0, 9.0, 12.0,
-                7.0,  8.0,  9.0, 10.0, 6.0,  9.0, 11.0, 10.0]
-=======
     # Ages sourced from Table 1 of Djemal et al. (2017): mean ≈ 9.5 for ASD, 8.9 for TD
     kau_ages = [8.0, 9.0, 10.0, 11.0, 7.0, 10.0, 9.0, 12.0,   # ASD ages (approx.)
                 7.0,  8.0,  9.0, 10.0, 6.0,  9.0, 11.0, 10.0]  # TD ages (approx.)
->>>>>>> 41d5ec0258ccbfd45872db8bbbf9cb675e63b0a1
     df_eeg = pd.DataFrame({
         "subject_id": kau_asd_ids + kau_td_ids,
         "dx_group":   [1] * 8 + [2] * 8,
@@ -159,11 +150,7 @@ def generate_manifests():
                 "TD_count": eeg_td,
                 "TD_pct": float(np.round(eeg_td / len(df_eeg) * 100, 2))
             },
-<<<<<<< HEAD
-            "n_channels": 16,
-=======
             "n_channels": config.EEG_N_CHANNELS,
->>>>>>> 41d5ec0258ccbfd45872db8bbbf9cb675e63b0a1
             "channel_system": "Standard 10-20 (FP1, F3, F7, FP2, F4, F8, T7, P7, T8, P8, C3, Cz, C4, P3, Pz, P4)",
             "sampling_rate_hz": 256.0,
             "age_mean": float(np.round(df_eeg["age"].mean(), 2)),
