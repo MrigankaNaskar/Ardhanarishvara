@@ -34,22 +34,24 @@
     }
   },
   "EEG_cohort": {
-    "dataset_name": "KAU_Autism_EEG_Cohort",
-    "total_subjects": 110,
+    "dataset_name": "KAU ASD EEG Dataset (Djemal et al., 2017, doi:10.3390/app7020183)",
+    "description": "Real King Abdulaziz University EEG dataset: 16 recordings (8 ASD, 8 TD children), 16 channels, 256 Hz. Raw files require data-sharing request to KAU.",
+    "total_subjects": 16,
     "class_balance": {
-      "ASD_count": 66,
-      "ASD_pct": 60.0,
-      "TD_count": 44,
-      "TD_pct": 40.0
+      "ASD_count": 8,
+      "ASD_pct": 50.0,
+      "TD_count": 8,
+      "TD_pct": 50.0
     },
     "n_channels": 16,
-    "sampling_rate_hz": 250.0,
-    "age_mean": 11.11,
-    "age_std": 2.99
+    "channel_system": "Standard 10-20 (FP1, F3, F7, FP2, F4, F8, T7, P7, T8, P8, C3, Cz, C4, P3, Pz, P4)",
+    "sampling_rate_hz": 256.0,
+    "age_mean": 9.12,
+    "age_std": 1.63
   },
   "cohort_overlap_analysis": {
     "overlapping_subjects_count": 0,
     "overlap_status": "ZERO_OVERLAP_UNALIGNED_MULTIMODAL",
-    "details": "fMRI (ABIDE-I) and EEG (KAU) cohorts are separate clinical populations confirming unaligned multimodal setup."
+    "details": "fMRI (ABIDE-I) and EEG (KAU Djemal2017) cohorts are entirely separate clinical populations with no subject overlap \u2014 unaligned multimodal setup."
   }
 }
